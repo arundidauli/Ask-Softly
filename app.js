@@ -7,11 +7,19 @@ let latestReplyByType = {};
 let currentLang = "hinglish";
 let currentTargetStyle = "neutral";
 let currentRequestId = "";
+let currentSenderToken = "";
+let selectedInterest = "";
 const moodClasses = ["mood-default", "mood-yes", "mood-softyes", "mood-maybe", "mood-later", "mood-no"];
 const DIRECT_ANSWER_API_URL = window.FEELINGS_ANSWER_API_URL || "";
 const SUPABASE_URL = window.FEELINGS_SUPABASE_URL || "";
 const SUPABASE_ANON_KEY = window.FEELINGS_SUPABASE_ANON_KEY || "";
 const SENT_REQUESTS_KEY = "feelings_sent_requests_v1";
+const SENDER_TOKEN_KEY = "feelings_sender_token_v1";
+let bubbleResizeTimer = null;
+
+function isMobileView() {
+  return window.innerWidth <= 768;
+}
 
 function switchTab(tab, tabEl) {
   document.querySelectorAll(".tab").forEach((t) => t.classList.remove("active"));
@@ -163,6 +171,12 @@ function generateLink() {
     question: q,
     created_at: new Date().toISOString()
   });
+  registerRequestInSupabase({
+    request_id: reqId,
+    sender_name: sn,
+    receiver_name: rn,
+    question: q
+  });
 
   for (let i = 1; i <= 3; i++) {
     const el = document.getElementById("step-" + i);
@@ -171,6 +185,42 @@ function generateLink() {
   document.getElementById("share-panel").classList.add("visible");
   updateDots();
   window.scrollTo({ top: 0, behavior: "smooth" });
+}
+
+function getSenderToken() {
+  let token = localStorage.getItem(SENDER_TOKEN_KEY);
+  if (!token) {
+    token = (window.crypto && window.crypto.randomUUID)
+      ? window.crypto.randomUUID()
+      : `st_${Date.now()}_${Math.random().toString(36).slice(2, 10)}`;
+    localStorage.setItem(SENDER_TOKEN_KEY, token);
+  }
+  return token;
+}
+
+async function registerRequestInSupabase(entry) {
+  if (!SUPABASE_URL || !SUPABASE_ANON_KEY || !currentSenderToken) return;
+  try {
+    await fetch(`${SUPABASE_URL}/rest/v1/requests`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        apikey: SUPABASE_ANON_KEY,
+        Authorization: `Bearer ${SUPABASE_ANON_KEY}`,
+        Prefer: "resolution=merge-duplicates,return=minimal"
+      },
+      body: JSON.stringify({
+        request_id: entry.request_id,
+        sender_token: currentSenderToken,
+        sender_name: entry.sender_name,
+        receiver_name: entry.receiver_name,
+        question: entry.question,
+        created_at: new Date().toISOString()
+      })
+    });
+  } catch (_) {
+    // Non-blocking: receiver flow still works.
+  }
 }
 
 function getSentRequests() {
@@ -249,7 +299,8 @@ async function loadMyAnswers() {
     const res = await fetch(url.toString(), {
       headers: {
         apikey: SUPABASE_ANON_KEY,
-        Authorization: `Bearer ${SUPABASE_ANON_KEY}`
+        Authorization: `Bearer ${SUPABASE_ANON_KEY}`,
+        "x-sender-token": currentSenderToken
       }
     });
     if (!res.ok) throw new Error(`HTTP ${res.status}`);
@@ -338,6 +389,7 @@ function loadReceiverFromURL() {
     applyTargetAvatar();
   }
   applyReceiverLanguage();
+  selectedInterest = "";
   previewMood("idle");
 }
 
@@ -361,7 +413,12 @@ function applyReceiverLanguage() {
     noPanelSub: isHinglish ? "Bilkul pressure nahi. Jo sach lage woh choose karo." : "No pressure. Pick what feels true for you.",
     noPanelMaybe: isHinglish ? "Mujhe aur time chahiye" : "I need more time",
     noPanelLater: isHinglish ? "Aaj nahi, baad mein maybe" : "Not today, maybe later",
-    noPanelNo: isHinglish ? "Nahi, mujhe space chahiye" : "No, I still need space"
+    noPanelNo: isHinglish ? "Nahi, mujhe space chahiye" : "No, I still need space",
+    interestTitle: isHinglish ? "Jo easiest lage, woh vibe choose karo" : "Pick the easiest vibe",
+    interestCoffee: isHinglish ? "Quick coffee" : "Quick coffee",
+    interestCall: isHinglish ? "10-min call" : "10-min call",
+    interestWalk: isHinglish ? "Short walk" : "Short walk",
+    interestNote: isHinglish ? "Chota plan = less pressure = happy yes chance high." : "Small plan, low pressure, better chance of a happy yes."
   };
   document.getElementById("answer-label").textContent = txt.answerLabel;
   document.getElementById("ans-yes-main").textContent = txt.yesMain;
@@ -384,6 +441,29 @@ function applyReceiverLanguage() {
   if (btns[0]) btns[0].textContent = txt.noPanelMaybe;
   if (btns[1]) btns[1].textContent = txt.noPanelLater;
   if (btns[2]) btns[2].textContent = txt.noPanelNo;
+  const iTitle = document.getElementById("interest-title");
+  const iCoffee = document.getElementById("interest-coffee");
+  const iCall = document.getElementById("interest-call");
+  const iWalk = document.getElementById("interest-walk");
+  const iNote = document.getElementById("interest-note");
+  if (iTitle) iTitle.textContent = txt.interestTitle;
+  if (iCoffee) iCoffee.textContent = txt.interestCoffee;
+  if (iCall) iCall.textContent = txt.interestCall;
+  if (iWalk) iWalk.textContent = txt.interestWalk;
+  if (iNote) iNote.textContent = txt.interestNote;
+}
+
+function setInterest(el, interestKey) {
+  document.querySelectorAll(".interest-chip").forEach((chip) => chip.classList.remove("active"));
+  if (el) el.classList.add("active");
+  selectedInterest = interestKey;
+  const note = document.getElementById("interest-note");
+  const map = {
+    coffee: currentLang === "hinglish" ? "Easy plan selected: quick coffee vibe." : "Easy plan selected: quick coffee vibe.",
+    call: currentLang === "hinglish" ? "Low effort, warm connect: 10-min call." : "Low effort, warm connect: 10-min call.",
+    walk: currentLang === "hinglish" ? "Soft reconnect mode: short walk." : "Soft reconnect mode: short walk."
+  };
+  if (note) note.textContent = map[interestKey] || note.textContent;
 }
 
 function handleNoAttempt() {
@@ -438,16 +518,18 @@ function clearFxLayer() {
 function playOutcomeFx(type) {
   const layer = clearFxLayer();
   if (!layer) return;
+  const mobile = isMobileView();
 
   if (type === "yes") {
-    for (let i = 0; i < 16; i++) {
+    const total = mobile ? 10 : 16;
+    for (let i = 0; i < total; i++) {
       const h = document.createElement("span");
       h.className = "fx-heart";
       h.textContent = Math.random() > 0.5 ? "❤" : "✨";
       h.style.left = "50%";
       h.style.top = "45%";
-      const angle = (Math.PI * 2 * i) / 16;
-      const dist = 80 + Math.random() * 120;
+      const angle = (Math.PI * 2 * i) / total;
+      const dist = mobile ? 60 + Math.random() * 70 : 80 + Math.random() * 120;
       h.style.setProperty("--tx", `${Math.cos(angle) * dist}px`);
       h.style.setProperty("--ty", `${Math.sin(angle) * dist}px`);
       h.style.animationDelay = `${Math.random() * 0.2}s`;
@@ -458,7 +540,8 @@ function playOutcomeFx(type) {
     shimmer.className = "fx-shimmer";
     layer.appendChild(shimmer);
   } else if (type === "maybe") {
-    for (let i = 0; i < 12; i++) {
+    const total = mobile ? 7 : 12;
+    for (let i = 0; i < total; i++) {
       const dot = document.createElement("span");
       dot.className = "fx-thought";
       dot.style.left = `${20 + Math.random() * 60}%`;
@@ -499,15 +582,17 @@ function initMoodBubbles() {
   const layer = document.getElementById("mood-bubbles");
   if (!layer) return;
   layer.innerHTML = "";
-  const count = 18;
+  const count = isMobileView() ? 10 : 18;
   for (let i = 0; i < count; i++) {
     const bubble = document.createElement("span");
     bubble.className = "mood-bubble";
-    const size = Math.floor(Math.random() * 70) + 24;
+    const size = isMobileView() ? Math.floor(Math.random() * 44) + 20 : Math.floor(Math.random() * 70) + 24;
     bubble.style.width = `${size}px`;
     bubble.style.height = `${size}px`;
     bubble.style.left = `${Math.random() * 100}%`;
-    bubble.style.animationDuration = `${Math.random() * 10 + 10}s`;
+    bubble.style.animationDuration = isMobileView()
+      ? `${Math.random() * 8 + 11}s`
+      : `${Math.random() * 10 + 10}s`;
     bubble.style.animationDelay = `${Math.random() * 8}s`;
     layer.appendChild(bubble);
   }
@@ -522,14 +607,20 @@ function submitAnswer(type) {
   if (panel) panel.style.display = "none";
 
   const replies = {
-    yes: [`Haan ${sn}, done. Let's do this.`, "Yes! This sounds good to me."],
-    softyes: ["Haan, but thoda plan karke karte hain.", "I am in, bas thoda time do."],
-    maybe: ["Main soch raha/rahi hu, jaldi batata/batati hu.", "Not no. Bas thoda time."],
-    later: ["Abhi right time nahi hai, par baad mein possible hai.", "Aaj nahi, but I appreciate this."],
-    no: ["Mujhe abhi space chahiye. Hope you understand.", "I care, but right now I need space."]
+    yes: [`Haan ${sn}, full yes. Tumhare saath yeh moment special hoga.`, "Yes! Dil se yes - let's make it beautiful."],
+    softyes: ["Haan, aur pyaar se plan karte hain. Thoda sa time do.", "I am in. Bas thoda sa warm-up and we do this right."],
+    maybe: ["No nahi hai. Bas dil ko thoda waqt chahiye.", "I care - give me a little time, then let's do this."],
+    later: ["Aaj mushkil hai, par feeling same hai. Baad mein karte hain.", "Right now not possible, but this matters to me."],
+    no: ["Mujhe abhi space chahiye. Respect karne ke liye thank you.", "I care, but I need space right now."]
   };
   const msg = replies[type][Math.floor(Math.random() * replies[type].length)];
-  latestReplyByType[type] = msg;
+  const interestLine = selectedInterest
+    ? (currentLang === "hinglish"
+      ? ` Chalo ${selectedInterest === "coffee" ? "quick coffee" : selectedInterest === "call" ? "10-min call" : "short walk"} se start karte hain.`
+      : ` Let's start with a ${selectedInterest === "coffee" ? "quick coffee" : selectedInterest === "call" ? "10-min call" : "short walk"}.`)
+    : "";
+  const finalMsg = `${msg}${interestLine}`;
+  latestReplyByType[type] = finalMsg;
 
   ["yes", "softyes", "maybe", "later", "no"].forEach((id) => {
     const el = document.getElementById("outcome-" + id);
@@ -540,11 +631,11 @@ function submitAnswer(type) {
   outcomeEl.classList.add("active");
 
   const copyEl = document.getElementById("outcome-" + type + "-copy");
-  if (copyEl) copyEl.innerHTML = `<span>"${msg}"</span>`;
+  if (copyEl) copyEl.innerHTML = `<span>"${finalMsg}"</span>`;
 
   const sendBackBtn = document.getElementById("send-back-" + type);
   if (sendBackBtn) sendBackBtn.style.display = senderWhatsapp ? "block" : "none";
-  submitDirectAnswer(type, msg);
+  submitDirectAnswer(type, finalMsg);
 
   if (type === "yes") launchConfetti();
   setMoodTheme(type);
@@ -660,7 +751,7 @@ function launchConfetti() {
   canvas.height = window.innerHeight;
 
   const colors = ["#d4a078", "#e8c4a0", "#e8a0b0", "#a090d0", "#88c8a8", "#f5ede0"];
-  const particles = Array.from({ length: 100 }, () => ({
+  const particles = Array.from({ length: isMobileView() ? 56 : 100 }, () => ({
     x: Math.random() * canvas.width,
     y: -20,
     vx: (Math.random() - 0.5) * 3,
@@ -701,10 +792,18 @@ function launchConfetti() {
 }
 
 window.addEventListener("load", () => {
+  currentSenderToken = getSenderToken();
   initMoodBubbles();
   setMoodTheme("default");
   if (window.location.search.includes("from=") || window.location.search.includes("q=")) {
     switchTab("receiver");
   }
   loadQuestions();
+});
+
+window.addEventListener("resize", () => {
+  clearTimeout(bubbleResizeTimer);
+  bubbleResizeTimer = setTimeout(() => {
+    initMoodBubbles();
+  }, 220);
 });

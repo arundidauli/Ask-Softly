@@ -573,6 +573,8 @@
   <div class="blob blob-2"></div>
   <div class="blob blob-3"></div>
 </div>
+<div class="vibe-orb one" aria-hidden="true"></div>
+<div class="vibe-orb two" aria-hidden="true"></div>
 <div class="mood-bubbles" id="mood-bubbles" aria-hidden="true"></div>
 
 <div class="wrap">
@@ -796,6 +798,16 @@
         </button>
       </div>
       <div class="receiver-helper" id="receiver-helper">Choose what feels real - no pressure.</div>
+
+      <div class="interest-strip">
+        <div class="interest-title" id="interest-title">Pick a vibe that feels easiest</div>
+        <div class="interest-chips">
+          <button class="interest-chip" onclick="setInterest(this, 'coffee')" id="interest-coffee">Quick coffee</button>
+          <button class="interest-chip" onclick="setInterest(this, 'call')" id="interest-call">10-min call</button>
+          <button class="interest-chip" onclick="setInterest(this, 'walk')" id="interest-walk">Short walk</button>
+        </div>
+        <div class="interest-note" id="interest-note">Small plan, low pressure, more chance of happy yes.</div>
+      </div>
 
       <div id="no-gentle-panel" class="no-gentle-panel" style="display:none;">
         <div class="no-gentle-title">Before final no, want to choose a softer path?</div>

@@ -33,6 +33,7 @@ body {
   filter: blur(1px);
   opacity: 0.22;
   animation: bubbleRise linear infinite;
+  will-change: transform, opacity;
 }
 
 @keyframes bubbleRise {
@@ -177,6 +178,55 @@ body.mood-no {
   line-height: 1.5;
 }
 
+.interest-strip {
+  margin-top: 12px;
+  padding: 12px;
+  border-radius: 12px;
+  border: 0.5px solid rgba(255, 255, 255, 0.15);
+  background: rgba(255, 255, 255, 0.03);
+}
+
+.interest-title {
+  font-size: 12px;
+  color: rgba(240, 232, 224, 0.8);
+  margin-bottom: 8px;
+}
+
+.interest-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.interest-chip {
+  border: 0.5px solid rgba(232, 160, 176, 0.35);
+  background: rgba(232, 160, 176, 0.08);
+  color: #f5ede0;
+  border-radius: 999px;
+  padding: 7px 12px;
+  font-size: 12px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.interest-chip:hover {
+  background: rgba(212, 160, 120, 0.16);
+  border-color: rgba(212, 160, 120, 0.5);
+  transform: translateY(-1px);
+}
+
+.interest-chip.active {
+  background: linear-gradient(135deg, rgba(232, 160, 176, 0.24), rgba(212, 160, 120, 0.22));
+  border-color: rgba(212, 160, 120, 0.75);
+  box-shadow: 0 4px 14px rgba(212, 160, 120, 0.2);
+}
+
+.interest-note {
+  margin-top: 8px;
+  font-size: 11px;
+  color: rgba(240, 232, 224, 0.66);
+}
+
 /* Outcome effect layer */
 .fx-layer {
   position: fixed;
@@ -184,6 +234,35 @@ body.mood-no {
   pointer-events: none;
   z-index: 90;
   overflow: hidden;
+}
+
+.vibe-orb {
+  position: fixed;
+  width: 180px;
+  height: 180px;
+  border-radius: 50%;
+  pointer-events: none;
+  z-index: 0;
+  background: radial-gradient(circle, rgba(232, 160, 176, 0.2), transparent 70%);
+  animation: vibeFloat 7s ease-in-out infinite;
+  will-change: transform, opacity;
+}
+
+.vibe-orb.one {
+  top: 8%;
+  right: -40px;
+}
+
+.vibe-orb.two {
+  bottom: 6%;
+  left: -55px;
+  background: radial-gradient(circle, rgba(160, 144, 208, 0.2), transparent 70%);
+  animation-delay: -2.4s;
+}
+
+@keyframes vibeFloat {
+  0%, 100% { transform: translateY(0) scale(1); opacity: 0.35; }
+  50% { transform: translateY(-10px) scale(1.08); opacity: 0.55; }
 }
 
 .fx-heart {
@@ -238,4 +317,19 @@ body.mood-no {
   0% { opacity: 0; }
   35% { opacity: 0.65; }
   100% { opacity: 0; }
+}
+
+@media (max-width: 768px) {
+  .mood-bubble {
+    filter: none;
+    opacity: 0.18;
+  }
+  .vibe-orb {
+    width: 130px;
+    height: 130px;
+    opacity: 0.7;
+  }
+  .fx-heart {
+    font-size: 15px;
+  }
 }

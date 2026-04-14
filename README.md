@@ -113,8 +113,8 @@ with check (true);
 Important for safety:
 
 - Strict mode: keep anon insert-only (most secure).
-- Inbox mode: allow anon select only if you need in-app **My Answers Inbox**.
-- Current inbox implementation matches answers by `request_id` from local sent-link history on same device.
+- Sender-only inbox mode: app now uses a private local `sender_token` header (`x-sender-token`) and request mapping table so only the original sender device can list matching answers.
+- Current inbox implementation still matches by `request_id` from local sent-link history on same device.
 
 #### Option B: Custom webhook
 

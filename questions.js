@@ -8,7 +8,9 @@ window.QUESTIONS = {
       "Mujhe tumse properly baat karni hai, abhi call?",
       "Ek chance dogi, sab better kar dunga?",
       "Kal coffee pe chalte hain, no excuses?",
-      "Seedha bolu? I miss you. Milogi?"
+      "Seedha bolu? I miss you. Milogi?",
+      "Aaj bas tum, main aur honesty. Ready?",
+      "Ek baar haan bol do, din bana dunga."
     ],
     spouse: [
       "Aaj raat dinner saath mein, bina phone ke?",
@@ -16,7 +18,9 @@ window.QUESTIONS = {
       "Main effort karna chahta/chahti hu, ek chance doge?",
       "Thoda time de do, baat clear karni hai.",
       "Weekend ka ek chota sa plan sirf hum dono ke liye?",
-      "Aaj narazgi side pe rakh ke 20 min baat karein?"
+      "Aaj narazgi side pe rakh ke 20 min baat karein?",
+      "Mujhe tumhari muskaan chahiye - aaj milte hain?",
+      "Chalo firse 'hum' ko priority dete hain?"
     ],
     sibling: [
       "Oye, kab mil raha/rahi hai? Miss kar raha/rahi hu.",
@@ -37,7 +41,9 @@ window.QUESTIONS = {
       "Ek long drive ya chai plan karein?",
       "Tu yaad aa raha/rahi hai, milte hain jaldi?",
       "Ek honest baat karni hai, sunega/sunegi?",
-      "Is weekend pakka milna. Cancel mat karna."
+      "Is weekend pakka milna. Cancel mat karna.",
+      "Mere liye 30 min nikaal, bahut zaroori hai.",
+      "Tu haan bol, baaki plan mera."
     ]
   },
   english: {
@@ -46,13 +52,17 @@ window.QUESTIONS = {
       "No drama, just us - can we go out this weekend?",
       "Can we talk for 15 minutes and reset this?",
       "Can I make it up to you with one good plan?",
-      "Can we do coffee tomorrow, no excuses?"
+      "Can we do coffee tomorrow, no excuses?",
+      "Say yes once - I will make it worth it.",
+      "Can we choose us today, properly?"
     ],
     spouse: [
       "Can we have dinner together tonight, no phones?",
       "Can we lock one proper us-time this week?",
       "Can we talk honestly tonight and clear things out?",
-      "Can I plan one special evening for us this weekend?"
+      "Can I plan one special evening for us this weekend?",
+      "Can we put us first for one evening?",
+      "Can we restart this week with warmth?"
     ],
     sibling: [
       "Can we catch up this week? I miss you.",
@@ -70,7 +80,9 @@ window.QUESTIONS = {
       "Can we meet this week? I need my friend.",
       "Can we do chai/coffee and talk properly?",
       "Can I share something honest with you today?",
-      "Can we plan one no-cancel hangout this weekend?"
+      "Can we plan one no-cancel hangout this weekend?",
+      "Give me 30 minutes - I really need this.",
+      "Say yes, I will handle the rest."
     ]
   }
 };
