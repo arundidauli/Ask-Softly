@@ -112,8 +112,9 @@ with check (true);
 
 Important for safety:
 
-- Keep policy insert-only for anon.
-- Do not allow anon select/update/delete.
+- Strict mode: keep anon insert-only (most secure).
+- Inbox mode: allow anon select only if you need in-app **My Answers Inbox**.
+- Current inbox implementation matches answers by `request_id` from local sent-link history on same device.
 
 #### Option B: Custom webhook
 

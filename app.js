@@ -11,6 +11,7 @@ const moodClasses = ["mood-default", "mood-yes", "mood-softyes", "mood-maybe", "
 const DIRECT_ANSWER_API_URL = window.FEELINGS_ANSWER_API_URL || "";
 const SUPABASE_URL = window.FEELINGS_SUPABASE_URL || "";
 const SUPABASE_ANON_KEY = window.FEELINGS_SUPABASE_ANON_KEY || "";
+const SENT_REQUESTS_KEY = "feelings_sent_requests_v1";
 
 function switchTab(tab, tabEl) {
   document.querySelectorAll(".tab").forEach((t) => t.classList.remove("active"));
@@ -155,6 +156,13 @@ function generateLink() {
   generatedLink = `${window.location.href.split("?")[0]}?${params.toString()}`;
   document.getElementById("share-url-display").textContent = generatedLink;
   document.getElementById("link-for-name").textContent = rn;
+  storeSentRequest({
+    request_id: reqId,
+    to: rn,
+    from: sn,
+    question: q,
+    created_at: new Date().toISOString()
+  });
 
   for (let i = 1; i <= 3; i++) {
     const el = document.getElementById("step-" + i);
@@ -163,6 +171,95 @@ function generateLink() {
   document.getElementById("share-panel").classList.add("visible");
   updateDots();
   window.scrollTo({ top: 0, behavior: "smooth" });
+}
+
+function getSentRequests() {
+  try {
+    const raw = localStorage.getItem(SENT_REQUESTS_KEY);
+    const parsed = raw ? JSON.parse(raw) : [];
+    return Array.isArray(parsed) ? parsed : [];
+  } catch {
+    return [];
+  }
+}
+
+function storeSentRequest(entry) {
+  const existing = getSentRequests().filter((r) => r.request_id !== entry.request_id);
+  existing.unshift(entry);
+  localStorage.setItem(SENT_REQUESTS_KEY, JSON.stringify(existing.slice(0, 200)));
+}
+
+function formatAnswerTime(iso) {
+  if (!iso) return "";
+  const d = new Date(iso);
+  if (Number.isNaN(d.getTime())) return "";
+  return d.toLocaleString();
+}
+
+function renderInboxRows(rows, sentMap) {
+  const list = document.getElementById("answers-inbox-list");
+  if (!list) return;
+  if (!rows.length) {
+    list.innerHTML = "";
+    return;
+  }
+  list.innerHTML = rows.map((r) => {
+    const sent = sentMap.get(r.request_id) || {};
+    const q = sent.question || r.question || "No question";
+    const to = sent.to || r.receiver_name || "Unknown";
+    const who = r.receiver_name || to;
+    const at = formatAnswerTime(r.created_at);
+    return `
+      <div class="answer-row">
+        <div class="answer-row-top">
+          <span>For: ${to}</span>
+          <span>${at}</span>
+        </div>
+        <div class="answer-row-question">Q: ${q}</div>
+        <div class="answer-row-reply">A (${r.answer_type || "reply"}) by ${who}: ${r.answer_text || ""}</div>
+      </div>
+    `;
+  }).join("");
+}
+
+async function loadMyAnswers() {
+  const status = document.getElementById("answers-inbox-status");
+  const list = document.getElementById("answers-inbox-list");
+  const sent = getSentRequests();
+  if (!sent.length) {
+    if (status) status.textContent = "No sent links found on this device yet.";
+    if (list) list.innerHTML = "";
+    return;
+  }
+  const ids = sent.map((s) => s.request_id).filter(Boolean);
+  const sentMap = new Map(sent.map((s) => [s.request_id, s]));
+
+  if (!SUPABASE_URL || !SUPABASE_ANON_KEY) {
+    if (status) status.textContent = "Supabase config missing in app runtime.";
+    return;
+  }
+  if (status) status.textContent = "Loading answers...";
+
+  try {
+    const inClause = ids.map((id) => `"${id}"`).join(",");
+    const url = new URL(`${SUPABASE_URL}/rest/v1/responses`);
+    url.searchParams.set("select", "request_id,answer_type,answer_text,receiver_name,question,created_at");
+    url.searchParams.set("request_id", `in.(${inClause})`);
+    url.searchParams.set("order", "created_at.desc");
+    const res = await fetch(url.toString(), {
+      headers: {
+        apikey: SUPABASE_ANON_KEY,
+        Authorization: `Bearer ${SUPABASE_ANON_KEY}`
+      }
+    });
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    const rows = await res.json();
+    if (status) status.textContent = rows.length ? `Found ${rows.length} answers.` : "No answers yet for your links.";
+    renderInboxRows(rows, sentMap);
+  } catch (err) {
+    if (status) status.textContent = "Failed to load inbox. Check Supabase select policy.";
+    if (list) list.innerHTML = "";
+  }
 }
 
 function shareWhatsApp() {

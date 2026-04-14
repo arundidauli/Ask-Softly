@@ -741,6 +741,16 @@
       <button class="btn btn-ghost" onclick="resetSender()" style="margin-top: 12px; font-size: 13px;">Create another →</button>
     </div>
 
+    <div class="card" id="answers-inbox-card">
+      <div class="card-label">04 — My Answers Inbox</div>
+      <div style="font-size: 13px; color: var(--text-muted); line-height: 1.6; margin-bottom: 12px;">
+        Track answers from all links you created on this device.
+      </div>
+      <button class="btn btn-ghost" onclick="loadMyAnswers()">Load my answers</button>
+      <div id="answers-inbox-status" style="font-size: 12px; color: var(--text-hint); margin-top: 10px;"></div>
+      <div id="answers-inbox-list" class="answers-inbox-list"></div>
+    </div>
+
   </div>
   <!-- END SENDER VIEW -->
 
