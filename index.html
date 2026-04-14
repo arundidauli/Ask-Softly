@@ -618,6 +618,14 @@
         <input type="text" id="sender-name" placeholder="e.g. Priya" oninput="updateProgress()">
       </div>
       <div class="field">
+        <label>Your gender</label>
+        <select id="sender-gender">
+          <option value="unknown" selected>Prefer not to say</option>
+          <option value="he">He</option>
+          <option value="she">She</option>
+        </select>
+      </div>
+      <div class="field">
         <label>Language</label>
         <select id="language" onchange="loadQuestions()">
           <option value="hinglish" selected>Hinglish</option>
@@ -634,6 +642,14 @@
       <div class="field">
         <label>Their name</label>
         <input type="text" id="receiver-name-input" placeholder="e.g. Arjun" oninput="updateProgress()">
+      </div>
+      <div class="field">
+        <label>Their gender</label>
+        <select id="receiver-gender">
+          <option value="unknown" selected>Prefer not to say</option>
+          <option value="he">He</option>
+          <option value="she">She</option>
+        </select>
       </div>
       <div class="field">
         <label>For whom?</label>

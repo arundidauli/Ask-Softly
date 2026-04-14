@@ -16,6 +16,28 @@ const SUPABASE_ANON_KEY = window.FEELINGS_SUPABASE_ANON_KEY || "";
 const SENT_REQUESTS_KEY = "feelings_sent_requests_v1";
 const SENDER_TOKEN_KEY = "feelings_sender_token_v1";
 let bubbleResizeTimer = null;
+const GENDER_QUESTION_BOOST = {
+  hinglish: {
+    her: [
+      "Tumhari smile ke liye aaj ek cute plan banaun?",
+      "Aaj tumhe special feel karane ka chance dogi?"
+    ],
+    him: [
+      "Aaj tumhare saath ek strong coffee talk karein?",
+      "Ek clean plan hai - tum haan bolo, baaki main sambhal lunga/lungi."
+    ]
+  },
+  english: {
+    her: [
+      "Can I plan something that makes you feel really special today?",
+      "Will you give me one sweet chance to make you smile?"
+    ],
+    him: [
+      "Can we do one solid coffee catch-up today?",
+      "Say yes once - I will handle the plan end to end."
+    ]
+  }
+};
 
 function isMobileView() {
   return window.innerWidth <= 768;
@@ -84,13 +106,17 @@ function setTone(el, tone) {
 function loadQuestions() {
   const rel = document.getElementById("relationship").value;
   const lang = document.getElementById("language").value || "hinglish";
+  const target = document.getElementById("target-style").value || "neutral";
   const list = document.getElementById("question-list");
   const byLang = window.QUESTIONS[lang] || window.QUESTIONS.hinglish;
   if (!rel || !byLang[rel]) {
     list.innerHTML = '<div class="q-item">Select a relationship to see questions.</div>';
     return;
   }
-  list.innerHTML = byLang[rel].map((q) => `<div class="q-item" onclick="selectQ(this)">${q}</div>`).join("");
+  const baseQuestions = byLang[rel].slice();
+  const boost = (GENDER_QUESTION_BOOST[lang] && GENDER_QUESTION_BOOST[lang][target]) ? GENDER_QUESTION_BOOST[lang][target] : [];
+  const allQuestions = [...baseQuestions, ...boost];
+  list.innerHTML = allQuestions.map((q) => `<div class="q-item" onclick="selectQ(this)">${q}</div>`).join("");
   clearQSelection();
 }
 
@@ -153,11 +179,13 @@ function generateLink() {
   const tone = selectedTone;
   const lang = document.getElementById("language").value || "hinglish";
   const target = document.getElementById("target-style").value || "neutral";
+  const senderGender = document.getElementById("sender-gender").value || "unknown";
+  const receiverGender = document.getElementById("receiver-gender").value || "unknown";
   const senderWa = document.getElementById("sender-wa").value.trim().replace(/[^\d]/g, "");
   const reqId = (window.crypto && window.crypto.randomUUID) ? window.crypto.randomUUID() : `req_${Date.now()}`;
   currentRequestId = reqId;
 
-  const params = new URLSearchParams({ from: sn, to: rn, rel, q, tone, lang, target, req: reqId });
+  const params = new URLSearchParams({ from: sn, to: rn, rel, q, tone, lang, target, req: reqId, sg: senderGender, rg: receiverGender });
   if (senderWa) params.set("wa", senderWa);
   if (mem) params.set("mem", mem);
 
@@ -168,6 +196,8 @@ function generateLink() {
     request_id: reqId,
     to: rn,
     from: sn,
+    receiver_gender: receiverGender,
+    sender_gender: senderGender,
     question: q,
     created_at: new Date().toISOString()
   });
@@ -185,6 +215,12 @@ function generateLink() {
   document.getElementById("share-panel").classList.add("visible");
   updateDots();
   window.scrollTo({ top: 0, behavior: "smooth" });
+}
+
+function genderTag(g) {
+  if (g === "he") return "he";
+  if (g === "she") return "she";
+  return "";
 }
 
 function getSenderToken() {
@@ -291,6 +327,12 @@ async function loadMyAnswers() {
   if (status) status.textContent = "Loading answers...";
 
   try {
+    await Promise.all(sent.map((entry) => registerRequestInSupabase({
+      request_id: entry.request_id,
+      sender_name: entry.from || "",
+      receiver_name: entry.to || "",
+      question: entry.question || ""
+    })));
     const inClause = ids.map((id) => `"${id}"`).join(",");
     const url = new URL(`${SUPABASE_URL}/rest/v1/responses`);
     url.searchParams.set("select", "request_id,answer_type,answer_text,receiver_name,question,created_at");
@@ -339,6 +381,8 @@ function resetSender() {
   document.getElementById("relationship").value = "";
   document.getElementById("language").value = "hinglish";
   document.getElementById("target-style").value = "neutral";
+  document.getElementById("sender-gender").value = "unknown";
+  document.getElementById("receiver-gender").value = "unknown";
   document.getElementById("memory-field").style.display = "none";
   selectedQuestion = "";
   selectedTone = "";
@@ -361,9 +405,15 @@ function loadReceiverFromURL() {
   currentTargetStyle = params.get("target") || "neutral";
   currentRequestId = params.get("req") || "";
   senderWhatsapp = (params.get("wa") || "").replace(/[^\d]/g, "");
+  const senderGender = params.get("sg") || "unknown";
+  const receiverGender = params.get("rg") || "unknown";
 
   document.getElementById("r-sender-name").textContent = from;
-  document.getElementById("r-receiver-name").textContent = to ? `For ${to}` : "";
+  const receiverTag = genderTag(receiverGender);
+  document.getElementById("r-receiver-name").textContent = to ? `For ${to}${receiverTag ? ` (${receiverTag})` : ""}` : "";
+  const senderTag = genderTag(senderGender);
+  const senderFromEl = document.getElementById("r-sender-name");
+  if (senderFromEl && senderTag) senderFromEl.textContent = `${from} (${senderTag})`;
   document.getElementById("r-question").textContent = q;
   applyTargetAvatar();
 
