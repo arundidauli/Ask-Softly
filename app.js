@@ -11,6 +11,7 @@ let currentSenderToken = "";
 let currentReceiverNameHint = "";
 let selectedInterest = "";
 const moodClasses = ["mood-default", "mood-yes", "mood-softyes", "mood-maybe", "mood-later", "mood-no"];
+const ROMANTIC_RELATIONSHIPS = new Set(["partner", "spouse"]);
 const DIRECT_ANSWER_API_URL = window.FEELINGS_ANSWER_API_URL || "";
 const SUPABASE_URL = window.FEELINGS_SUPABASE_URL || "";
 const SUPABASE_ANON_KEY = window.FEELINGS_SUPABASE_ANON_KEY || "";
@@ -21,22 +22,22 @@ let bubbleResizeTimer = null;
 const GENDER_QUESTION_BOOST = {
   hinglish: {
     her: [
-      "Tumhari smile ke liye aaj ek cute plan banaun?",
-      "Aaj tumhe special feel karane ka chance dogi?"
+      { text: "Tumhari smile ke liye aaj ek cute plan banaun?", tones: ["sweet", "playful"] },
+      { text: "Aaj tumhe special feel karane ka chance dogi?", tones: ["sweet", "heartfelt"] }
     ],
     him: [
-      "Aaj tumhare saath ek strong coffee talk karein?",
-      "Ek clean plan hai - tum haan bolo, baaki main sambhal lunga/lungi."
+      { text: "Aaj tumhare saath ek strong coffee talk karein?", tones: ["playful", "bold"] },
+      { text: "Ek clean plan hai - tum haan bolo, baaki main sambhal lunga/lungi.", tones: ["bold", "sweet"] }
     ]
   },
   english: {
     her: [
-      "Can I plan something that makes you feel really special today?",
-      "Will you give me one sweet chance to make you smile?"
+      { text: "Can I plan something that makes you feel really special today?", tones: ["sweet", "heartfelt"] },
+      { text: "Will you give me one sweet chance to make you smile?", tones: ["sweet", "gentle"] }
     ],
     him: [
-      "Can we do one solid coffee catch-up today?",
-      "Say yes once - I will handle the plan end to end."
+      { text: "Can we do one solid coffee catch-up today?", tones: ["playful", "bold"] },
+      { text: "Say yes once - I will handle the plan end to end.", tones: ["bold", "sweet"] }
     ]
   }
 };
@@ -101,6 +102,40 @@ function setTone(el, tone) {
   document.querySelectorAll(".tone-pill").forEach((p) => p.classList.remove("active"));
   el.classList.add("active");
   selectedTone = tone;
+  loadQuestions();
+  updateProgress();
+}
+
+function syncToneVisibility() {
+  const relationship = document.getElementById("relationship").value;
+  const romanticTone = document.querySelector('.tone-pill[data-tone="romantic"]');
+  const romanticAllowed = ROMANTIC_RELATIONSHIPS.has(relationship);
+
+  if (romanticTone) {
+    romanticTone.style.display = romanticAllowed ? "inline-flex" : "none";
+  }
+
+  if (!romanticAllowed && selectedTone === "romantic") {
+    selectedTone = "";
+    if (romanticTone) romanticTone.classList.remove("active");
+  }
+}
+
+function normalizeQuestionEntry(entry, fallbackTone) {
+  if (typeof entry === "string") {
+    return { text: entry, tones: fallbackTone ? [fallbackTone] : [] };
+  }
+  if (!entry || typeof entry.text !== "string") return null;
+  return {
+    text: entry.text,
+    tones: Array.isArray(entry.tones) ? entry.tones : (fallbackTone ? [fallbackTone] : [])
+  };
+}
+
+function questionMatchesTone(entry, tone) {
+  if (!tone) return true;
+  if (!Array.isArray(entry.tones) || !entry.tones.length) return true;
+  return entry.tones.includes(tone);
 }
 
 function loadQuestions() {
@@ -108,16 +143,39 @@ function loadQuestions() {
   const lang = document.getElementById("language").value || "hinglish";
   const target = document.getElementById("target-style").value || "neutral";
   const list = document.getElementById("question-list");
+  syncToneVisibility();
   const byLang = window.QUESTIONS[lang] || window.QUESTIONS.hinglish;
   if (!rel || !byLang[rel]) {
     list.innerHTML = '<div class="q-item">Select a relationship to see questions.</div>';
+    clearQSelection();
     return;
   }
-  const baseQuestions = byLang[rel].slice();
-  const boost = (GENDER_QUESTION_BOOST[lang] && GENDER_QUESTION_BOOST[lang][target]) ? GENDER_QUESTION_BOOST[lang][target] : [];
+  const baseQuestions = byLang[rel]
+    .map((entry) => normalizeQuestionEntry(entry))
+    .filter(Boolean);
+  const boost = ((GENDER_QUESTION_BOOST[lang] && GENDER_QUESTION_BOOST[lang][target]) || [])
+    .map((entry) => normalizeQuestionEntry(entry))
+    .filter(Boolean);
   const allQuestions = [...baseQuestions, ...boost];
-  list.innerHTML = allQuestions.map((q) => `<div class="q-item" onclick="selectQ(this)">${q}</div>`).join("");
-  clearQSelection();
+  const filteredQuestions = allQuestions.filter((entry) => questionMatchesTone(entry, selectedTone));
+  const visibleQuestions = filteredQuestions.length ? filteredQuestions : allQuestions;
+  const selectedStillVisible = visibleQuestions.some((entry) => entry.text === selectedQuestion);
+
+  list.innerHTML = visibleQuestions.length
+    ? visibleQuestions.map((entry) => `<div class="q-item" onclick="selectQ(this)">${entry.text}</div>`).join("")
+    : '<div class="q-item">No questions available for this selection yet.</div>';
+
+  if (!selectedStillVisible) {
+    clearQSelection();
+  } else {
+    document.querySelectorAll(".q-item").forEach((q) => {
+      if (q.textContent === selectedQuestion) q.classList.add("active");
+    });
+  }
+
+  if (selectedTone && !filteredQuestions.length) {
+    list.insertAdjacentHTML("afterbegin", '<div class="q-item">No exact tone match for this relationship yet. Showing all related questions instead.</div>');
+  }
 }
 
 function selectQ(el) {
@@ -168,7 +226,8 @@ function updatePreview() {
 
 function generateLink() {
   const sn = "";
-  const rn = document.getElementById("receiver-name-hint").value.trim();
+  const receiverNameInput = document.getElementById("receiver-name-hint");
+  const rn = receiverNameInput ? receiverNameInput.value.trim() : "";
   const rel = document.getElementById("relationship").value;
   const q = document.getElementById("custom-question").value.trim() || selectedQuestion;
   const mem = document.getElementById("memory-text").value.trim();
@@ -461,7 +520,8 @@ function resetSender() {
   updateDots();
   document.getElementById("progress-fill").style.width = "0%";
   ["sender-wa", "receiver-name-hint", "custom-question", "memory-text"].forEach((id) => {
-    document.getElementById(id).value = "";
+    const el = document.getElementById(id);
+    if (el) el.value = "";
   });
   document.getElementById("relationship").value = "";
   document.getElementById("language").value = "hinglish";
@@ -471,8 +531,10 @@ function resetSender() {
   document.getElementById("memory-field").style.display = "none";
   selectedQuestion = "";
   selectedTone = "";
+  document.querySelectorAll(".tone-pill").forEach((p) => p.classList.remove("active"));
   currentReceiverNameHint = "";
   setMoodTheme("default");
+  loadQuestions();
 }
 
 function applyTargetAvatar() {
@@ -689,7 +751,6 @@ function setMoodTheme(type) {
   moodClasses.forEach((c) => document.body.classList.remove(c));
   const mood = type ? `mood-${type}` : "mood-default";
   document.body.classList.add(mood);
-  recolorBubbles(type || "default");
 }
 
 function clearFxLayer() {
@@ -747,40 +808,11 @@ function playOutcomeFx(type) {
 }
 
 function recolorBubbles(type) {
-  const palette = {
-    default: ["#a090d0", "#e8a0b0", "#d4a078", "#88c8a8"],
-    yes: ["#88c8a8", "#a5e0c1", "#d4a078", "#f5ede0"],
-    softyes: ["#e8a0b0", "#f1bdd0", "#d4a078", "#f3ddc8"],
-    maybe: ["#a090d0", "#c0b4ea", "#e8a0b0", "#d2caf5"],
-    later: ["#e8a0b0", "#a090d0", "#d8a4ba", "#c4b8e9"],
-    no: ["#d4a078", "#e8c4a0", "#b7b7c8", "#f0e8e0"]
-  };
-  const colors = palette[type] || palette.default;
-  document.querySelectorAll(".mood-bubble").forEach((bubble) => {
-    const color = colors[Math.floor(Math.random() * colors.length)];
-    bubble.style.background = color;
-  });
+  return type;
 }
 
 function initMoodBubbles() {
-  const layer = document.getElementById("mood-bubbles");
-  if (!layer) return;
-  layer.innerHTML = "";
-  const count = isMobileView() ? 10 : 18;
-  for (let i = 0; i < count; i++) {
-    const bubble = document.createElement("span");
-    bubble.className = "mood-bubble";
-    const size = isMobileView() ? Math.floor(Math.random() * 44) + 20 : Math.floor(Math.random() * 70) + 24;
-    bubble.style.width = `${size}px`;
-    bubble.style.height = `${size}px`;
-    bubble.style.left = `${Math.random() * 100}%`;
-    bubble.style.animationDuration = isMobileView()
-      ? `${Math.random() * 8 + 11}s`
-      : `${Math.random() * 10 + 10}s`;
-    bubble.style.animationDelay = `${Math.random() * 8}s`;
-    layer.appendChild(bubble);
-  }
-  recolorBubbles("default");
+  return;
 }
 
 function submitAnswer(type) {
@@ -908,7 +940,7 @@ function sendReplyBack(type) {
   if (!senderWhatsapp) return;
   const sn = document.getElementById("r-sender-name").textContent || "you";
   const msg = latestReplyByType[type] || "Sharing my answer with care.";
-  const text = encodeURIComponent(`Hi ${sn},\n\n${msg}\n\nSent from Feelings Studio.`);
+  const text = encodeURIComponent(`Hi ${sn},\n\n${msg}\n\nSent from Ask Softly.`);
   window.open(`https://wa.me/${senderWhatsapp}?text=${text}`, "_blank");
 }
 
@@ -993,6 +1025,6 @@ window.addEventListener("load", () => {
 window.addEventListener("resize", () => {
   clearTimeout(bubbleResizeTimer);
   bubbleResizeTimer = setTimeout(() => {
-    initMoodBubbles();
+    return;
   }, 220);
 });

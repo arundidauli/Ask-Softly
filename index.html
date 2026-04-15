@@ -3,26 +3,26 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Feelings Studio — Say it beautifully</title>
-<meta name="description" content="Feelings Studio helps you share heartfelt questions with beautiful response flows, warm animations, and respectful answer handling.">
-<meta name="keywords" content="feelings, relationship app, shareable question link, emotional response, love app, hinglish">
+<title>Ask Softly — Say what you can't ask directly</title>
+<meta name="description" content="Ask Softly helps you send thoughtful asks you cannot say directly, with shareable links, clear tone selection, and respectful replies.">
+<meta name="keywords" content="ask softly, shareable ask link, indirect question app, hinglish ask, thoughtful message link, difficult conversation app">
 <meta name="robots" content="index, follow">
-<meta name="theme-color" content="#13111f">
-<link rel="canonical" href="https://arundidauli.github.io/Feelings-Studio/">
+<meta name="theme-color" content="#f7f4ef">
+<link rel="canonical" href="https://arundidauli.github.io/Ask-Softly/">
 
 <!-- Open Graph -->
 <meta property="og:type" content="website">
-<meta property="og:site_name" content="Feelings Studio">
-<meta property="og:title" content="Feelings Studio - Say it beautifully">
-<meta property="og:description" content="Create a heartfelt question, share it in one tap, and receive emotionally smart responses.">
-<meta property="og:url" content="https://arundidauli.github.io/Feelings-Studio/">
+<meta property="og:site_name" content="Ask Softly">
+<meta property="og:title" content="Ask Softly - Say what you can't ask directly">
+<meta property="og:description" content="Create a thoughtful ask, share it in one tap, and let the other person reply without pressure.">
+<meta property="og:url" content="https://arundidauli.github.io/Ask-Softly/">
 <meta property="og:image" content="https://i.ibb.co/TqLYK2K6/feeling-studio.png">
-<meta property="og:image:alt" content="Feelings Studio share preview">
+<meta property="og:image:alt" content="Ask Softly share preview">
 
 <!-- Twitter -->
 <meta name="twitter:card" content="summary_large_image">
-<meta name="twitter:title" content="Feelings Studio - Say it beautifully">
-<meta name="twitter:description" content="Share a feeling with warm, respectful answer flows.">
+<meta name="twitter:title" content="Ask Softly - Say what you can't ask directly">
+<meta name="twitter:description" content="Send a thoughtful ask through a clean shareable link when saying it directly feels hard.">
 <meta name="twitter:image" content="https://i.ibb.co/TqLYK2K6/feeling-studio.png">
 
 <!-- Basic structured data -->
@@ -30,9 +30,9 @@
 {
   "@context": "https://schema.org",
   "@type": "WebSite",
-  "name": "Feelings Studio",
-  "url": "https://arundidauli.github.io/Feelings-Studio/",
-  "description": "Feelings Studio helps people share heartfelt questions and receive meaningful responses.",
+  "name": "Ask Softly",
+  "url": "https://arundidauli.github.io/Ask-Softly/",
+  "description": "Ask Softly helps people send asks they cannot say directly and receive thoughtful responses.",
   "inLanguage": "en"
 }
 </script>
@@ -40,22 +40,22 @@
 <link rel="stylesheet" href="./styles.css">
 <style>
   :root {
-    --midnight: #0d0d1a;
-    --deep: #13111f;
-    --surface: #1a1729;
-    --card: #201d30;
-    --border: rgba(255,255,255,0.07);
-    --border-glow: rgba(212,160,120,0.25);
-    --gold: #d4a078;
-    --gold-light: #e8c4a0;
-    --blush: #e8a0b0;
-    --blush-dark: #c47090;
-    --lavender: #a090d0;
-    --cream: #f5ede0;
-    --text: #f0e8e0;
-    --text-muted: rgba(240,232,224,0.55);
-    --text-hint: rgba(240,232,224,0.3);
-    --green: #88c8a8;
+    --midnight: #f7f4ef;
+    --deep: #fffaf3;
+    --surface: #ffffff;
+    --card: #ffffff;
+    --border: #ddd6cb;
+    --border-glow: rgba(191, 129, 74, 0.18);
+    --gold: #b96f38;
+    --gold-light: #8d5429;
+    --blush: #d28a8f;
+    --blush-dark: #b56a72;
+    --lavender: #8b84b8;
+    --cream: #1f1b16;
+    --text: #1f1b16;
+    --text-muted: #5f564d;
+    --text-hint: #85796f;
+    --green: #4e8f68;
     --radius: 20px;
     --radius-sm: 12px;
   }
@@ -66,29 +66,15 @@
     background: var(--midnight);
     color: var(--text);
     font-family: 'DM Sans', sans-serif;
-    font-weight: 300;
+    font-weight: 400;
     min-height: 100vh;
     overflow-x: hidden;
   }
 
   /* ─── AMBIENT BACKGROUND ─── */
-  .ambient {
-    position: fixed; inset: 0; pointer-events: none; z-index: 0;
-  }
-  .blob {
-    position: absolute;
-    border-radius: 50%;
-    filter: blur(90px);
-    opacity: 0.18;
-    animation: drift 12s ease-in-out infinite alternate;
-  }
-  .blob-1 { width: 500px; height: 500px; background: var(--blush); top: -150px; left: -100px; animation-duration: 14s; }
-  .blob-2 { width: 400px; height: 400px; background: var(--gold); top: 30%; right: -120px; animation-duration: 18s; animation-delay: -5s; }
-  .blob-3 { width: 350px; height: 350px; background: var(--lavender); bottom: -100px; left: 20%; animation-duration: 16s; animation-delay: -8s; }
-  @keyframes drift {
-    from { transform: translate(0,0) scale(1); }
-    to { transform: translate(30px, 20px) scale(1.08); }
-  }
+  .ambient,
+  .vibe-orb,
+  .mood-bubbles { display: none; }
 
   /* ─── LAYOUT ─── */
   .wrap { position: relative; z-index: 1; max-width: 520px; margin: 0 auto; padding: 0 20px 80px; }
@@ -100,12 +86,11 @@
   }
   .logo-mark {
     display: inline-flex; align-items: center; gap: 10px;
-    background: rgba(255,255,255,0.04);
-    border: 0.5px solid var(--border);
+    background: #fff;
+    border: 1px solid var(--border);
     border-radius: 50px;
     padding: 6px 18px 6px 12px;
-    margin-bottom: 28px;
-    backdrop-filter: blur(10px);
+    margin-bottom: 20px;
   }
   .logo-icon {
     width: 28px; height: 28px;
@@ -117,34 +102,32 @@
   .logo-text { font-size: 13px; letter-spacing: 0.08em; color: var(--text-muted); font-weight: 400; }
 
   .header h1 {
-    font-family: 'Cormorant Garamond', serif;
-    font-size: clamp(38px, 8vw, 52px);
-    font-weight: 300;
+    font-family: 'DM Sans', sans-serif;
+    font-size: clamp(32px, 7vw, 44px);
+    font-weight: 700;
     line-height: 1.1;
     letter-spacing: -0.01em;
     color: var(--cream);
   }
-  .header h1 em { font-style: italic; color: var(--gold-light); }
+  .header h1 em { font-style: normal; color: var(--gold); }
   .header p {
-    margin-top: 14px;
+    margin-top: 10px;
     font-size: 15px;
     color: var(--text-muted);
-    line-height: 1.6;
-    max-width: 320px;
+    line-height: 1.55;
+    max-width: 360px;
     margin-left: auto; margin-right: auto;
   }
 
   /* ─── CARD ─── */
   .card {
     background: var(--card);
-    border: 0.5px solid var(--border);
+    border: 1px solid var(--border);
     border-radius: var(--radius);
     padding: 28px;
     margin-bottom: 16px;
-    backdrop-filter: blur(20px);
-    transition: border-color 0.3s;
+    box-shadow: 0 8px 24px rgba(33, 28, 21, 0.04);
   }
-  .card:hover { border-color: var(--border-glow); }
 
   .card-label {
     font-size: 11px;
@@ -171,45 +154,45 @@
   }
   .field input, .field textarea, .field select {
     width: 100%;
-    background: rgba(255,255,255,0.04);
-    border: 0.5px solid var(--border);
+    background: #fcfaf7;
+    border: 1px solid var(--border);
     border-radius: var(--radius-sm);
     color: var(--text);
     font-family: 'DM Sans', sans-serif;
     font-size: 15px;
-    font-weight: 300;
+    font-weight: 400;
     padding: 14px 16px;
     outline: none;
     transition: border-color 0.25s, background 0.25s;
     appearance: none;
   }
-  .field textarea { resize: none; min-height: 80px; line-height: 1.6; }
-  .field select { cursor: pointer; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='rgba(240,232,224,0.4)' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 16px center; padding-right: 40px; }
+  .field textarea { resize: none; min-height: 96px; line-height: 1.65; }
+  .field select { cursor: pointer; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%23645950' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 16px center; padding-right: 40px; }
   .field input:focus, .field textarea:focus, .field select:focus {
-    border-color: rgba(212,160,120,0.5);
-    background: rgba(212,160,120,0.05);
+    border-color: rgba(185,111,56,0.45);
+    background: #fff;
   }
   .field input::placeholder, .field textarea::placeholder { color: var(--text-hint); }
-  .field select option { background: #1a1729; }
+  .field select option { background: #fff; color: var(--text); }
 
   /* ─── TONE PILLS ─── */
   .tone-grid { display: flex; flex-wrap: wrap; gap: 8px; }
   .tone-pill {
     padding: 7px 16px;
     border-radius: 50px;
-    border: 0.5px solid var(--border);
-    background: rgba(255,255,255,0.03);
+    border: 1px solid var(--border);
+    background: #fff;
     font-size: 13px;
     color: var(--text-muted);
     cursor: pointer;
     transition: all 0.2s;
     user-select: none;
   }
-  .tone-pill:hover { border-color: var(--gold); color: var(--gold-light); }
+  .tone-pill:hover { border-color: var(--gold); color: var(--gold); }
   .tone-pill.active {
-    background: linear-gradient(135deg, rgba(212,160,120,0.2), rgba(232,160,176,0.2));
+    background: #f8ede5;
     border-color: var(--gold);
-    color: var(--gold-light);
+    color: #6f4423;
   }
 
   /* ─── QUESTION PICKER ─── */
@@ -217,18 +200,18 @@
   .q-item {
     padding: 13px 16px;
     border-radius: var(--radius-sm);
-    border: 0.5px solid var(--border);
-    background: rgba(255,255,255,0.03);
-    font-size: 14px;
-    color: var(--text-muted);
+    border: 1px solid var(--border);
+    background: #fcfaf7;
+    font-size: 15px;
+    color: var(--text);
     cursor: pointer;
     transition: all 0.2s;
-    line-height: 1.5;
+    line-height: 1.6;
   }
-  .q-item:hover { border-color: rgba(232,160,176,0.4); color: var(--text); background: rgba(232,160,176,0.05); }
+  .q-item:hover { border-color: rgba(185,111,56,0.35); background: #fff; }
   .q-item.active {
-    border-color: var(--blush-dark);
-    background: rgba(232,160,176,0.1);
+    border-color: var(--gold);
+    background: #fff3ea;
     color: var(--text);
   }
 
@@ -246,23 +229,22 @@
     letter-spacing: 0.02em;
   }
   .btn-primary {
-    background: linear-gradient(135deg, var(--gold), var(--blush));
-    color: #1a0f0a;
+    background: var(--gold);
+    color: #fff;
   }
-  .btn-primary:hover { transform: translateY(-1px); box-shadow: 0 8px 30px rgba(212,160,120,0.25); }
-  .btn-primary:active { transform: translateY(0); }
+  .btn-primary:hover { background: #a6622f; }
   .btn-ghost {
-    background: rgba(255,255,255,0.04);
-    border: 0.5px solid var(--border);
+    background: #fff;
+    border: 1px solid var(--border);
     color: var(--text-muted);
   }
-  .btn-ghost:hover { background: rgba(255,255,255,0.07); color: var(--text); }
+  .btn-ghost:hover { background: #f8f4ef; color: var(--text); }
 
   /* ─── SHARE PANEL ─── */
   .share-panel {
     display: none;
-    background: linear-gradient(135deg, rgba(212,160,120,0.08), rgba(232,160,176,0.08));
-    border: 0.5px solid var(--border-glow);
+    background: #fffaf5;
+    border: 1px solid #ead9c8;
     border-radius: var(--radius);
     padding: 28px;
     margin-bottom: 16px;
@@ -271,8 +253,8 @@
   .share-panel.visible { display: block; }
 
   .share-url {
-    background: rgba(0,0,0,0.3);
-    border: 0.5px solid var(--border);
+    background: #fff;
+    border: 1px solid var(--border);
     border-radius: var(--radius-sm);
     padding: 14px 16px;
     font-size: 12px;
@@ -307,32 +289,32 @@
   .receiver-hero {
     text-align: center;
     padding: 48px 0 32px;
-    animation: fadeUp 0.6s ease;
   }
   .receiver-from {
     display: inline-flex; align-items: center; gap: 8px;
     font-size: 13px; color: var(--text-hint);
-    background: rgba(255,255,255,0.04);
-    border: 0.5px solid var(--border);
+    background: #fff;
+    border: 1px solid var(--border);
     padding: 5px 14px; border-radius: 50px;
     margin-bottom: 24px;
   }
   .receiver-from span { color: var(--gold-light); font-weight: 400; }
   .receiver-name {
-    font-family: 'Cormorant Garamond', serif;
-    font-size: 18px; font-weight: 300;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 16px; font-weight: 500;
     color: var(--text-muted);
     margin-bottom: 8px;
   }
   .receiver-question {
-    font-family: 'Cormorant Garamond', serif;
-    font-size: clamp(26px, 6vw, 36px);
-    font-weight: 400;
-    line-height: 1.3;
+    font-family: 'DM Sans', sans-serif;
+    font-size: clamp(24px, 5.4vw, 32px);
+    font-weight: 700;
+    line-height: 1.4;
     color: var(--cream);
     padding: 0 8px;
+    letter-spacing: -0.01em;
   }
-  .receiver-question em { color: var(--gold-light); font-style: italic; }
+  .receiver-question em { color: var(--gold); font-style: normal; }
   .question-react {
     margin-top: 16px;
     display: inline-flex;
@@ -340,11 +322,10 @@
     gap: 8px;
     padding: 8px 14px;
     border-radius: 999px;
-    background: rgba(255,255,255,0.04);
-    border: 0.5px solid var(--border);
+    background: #fff;
+    border: 1px solid var(--border);
     color: var(--text-muted);
     font-size: 12px;
-    animation: floaty 3s ease-in-out infinite;
   }
   .react-emoji {
     font-size: 16px;
@@ -365,15 +346,15 @@
   .answer-btn {
     padding: 18px 22px;
     border-radius: var(--radius-sm);
-    border: 0.5px solid var(--border);
-    background: rgba(255,255,255,0.03);
+    border: 1px solid var(--border);
+    background: #fff;
     text-align: left;
     cursor: pointer;
     transition: all 0.25s;
     font-family: 'DM Sans', sans-serif;
     display: flex; align-items: center; gap: 14px;
   }
-  .answer-btn:hover { border-color: rgba(240,232,224,0.2); background: rgba(255,255,255,0.06); transform: translateX(4px); }
+  .answer-btn:hover { border-color: rgba(185,111,56,0.3); background: #fcfaf7; }
 
   .answer-dot {
     width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0;
@@ -382,10 +363,10 @@
   .dot-soft { background: var(--gold); }
   .dot-maybe { background: var(--lavender); }
   .dot-later { background: var(--blush); }
-  .dot-no { background: rgba(240,232,224,0.2); }
+  .dot-no { background: #b6aa9d; }
 
-  .answer-main { font-size: 15px; color: var(--text); font-weight: 400; }
-  .answer-sub { font-size: 12px; color: var(--text-hint); margin-top: 2px; }
+  .answer-main { font-size: 16px; color: var(--text); font-weight: 600; }
+  .answer-sub { font-size: 13px; color: var(--text-muted); margin-top: 4px; line-height: 1.5; }
 
   /* ─── OUTCOME SCREENS ─── */
   .outcome {
@@ -415,8 +396,8 @@
   .outcome p { font-size: 15px; color: var(--text-muted); line-height: 1.7; max-width: 320px; margin: 0 auto 24px; }
 
   .outcome-copy {
-    background: rgba(0,0,0,0.25);
-    border: 0.5px solid var(--border);
+    background: #fcfaf7;
+    border: 1px solid var(--border);
     border-radius: var(--radius-sm);
     padding: 16px 20px;
     font-size: 14px;
@@ -439,15 +420,15 @@
   .recovery-option {
     padding: 13px 16px;
     border-radius: var(--radius-sm);
-    border: 0.5px solid var(--border);
-    background: rgba(212,160,120,0.05);
+    border: 1px solid var(--border);
+    background: #fff8f1;
     font-size: 13px; color: var(--gold-light);
     cursor: pointer;
     transition: all 0.2s; text-align: left;
     font-family: 'DM Sans', sans-serif;
     display: flex; align-items: center; gap: 10px;
   }
-  .recovery-option:hover { background: rgba(212,160,120,0.12); border-color: var(--border-glow); }
+  .recovery-option:hover { background: #fff2e6; border-color: var(--border-glow); }
   .recovery-option::before { content: '↩'; opacity: 0.5; flex-shrink: 0; }
 
   /* ─── CONFETTI CANVAS ─── */
@@ -472,11 +453,6 @@
   @keyframes fadeUp {
     from { opacity: 0; transform: translateY(16px); }
     to { opacity: 1; transform: translateY(0); }
-  }
-  @keyframes floaty {
-    0% { transform: translateY(0); }
-    50% { transform: translateY(-3px); }
-    100% { transform: translateY(0); }
   }
   @keyframes reactPop {
     0% { transform: scale(1) rotate(0deg); }
@@ -509,14 +485,14 @@
   .memory-pill {
     display: flex; align-items: center; gap: 10px;
     padding: 10px 14px;
-    background: rgba(160,144,208,0.08);
-    border: 0.5px solid rgba(160,144,208,0.2);
+    background: #f6f2ff;
+    border: 1px solid rgba(139,132,184,0.24);
     border-radius: var(--radius-sm);
     margin-top: 12px;
     cursor: pointer;
     transition: all 0.2s;
   }
-  .memory-pill:hover { background: rgba(160,144,208,0.14); }
+  .memory-pill:hover { background: #f0e9ff; }
   .memory-pill-dot { width: 7px; height: 7px; border-radius: 50%; background: var(--lavender); flex-shrink: 0; }
   .memory-pill-text { font-size: 12px; color: var(--lavender); }
 
@@ -573,8 +549,8 @@
   #sender-view { display: block; }
   .tab-bar {
     display: flex;
-    background: rgba(255,255,255,0.03);
-    border: 0.5px solid var(--border);
+    background: #fff;
+    border: 1px solid var(--border);
     border-radius: 50px;
     padding: 4px;
     margin-bottom: 28px;
@@ -594,16 +570,16 @@
     font-family: 'DM Sans', sans-serif;
   }
   .tab.active {
-    background: linear-gradient(135deg, rgba(212,160,120,0.25), rgba(232,160,176,0.25));
+    background: #f8ede5;
     color: var(--text);
-    font-weight: 400;
+    font-weight: 600;
   }
 
   /* ─── HOVER GLOW ─── */
-  .answer-btn.yes-hover:hover { border-color: rgba(136,200,168,0.4); background: rgba(136,200,168,0.05); }
-  .answer-btn.soft-hover:hover { border-color: rgba(212,160,120,0.4); background: rgba(212,160,120,0.05); }
-  .answer-btn.maybe-hover:hover { border-color: rgba(160,144,208,0.4); background: rgba(160,144,208,0.05); }
-  .answer-btn.later-hover:hover { border-color: rgba(232,160,176,0.4); background: rgba(232,160,176,0.05); }
+  .answer-btn.yes-hover:hover { border-color: rgba(78,143,104,0.35); background: #f4fbf7; }
+  .answer-btn.soft-hover:hover { border-color: rgba(185,111,56,0.35); background: #fff7ef; }
+  .answer-btn.maybe-hover:hover { border-color: rgba(139,132,184,0.35); background: #f7f5ff; }
+  .answer-btn.later-hover:hover { border-color: rgba(210,138,143,0.35); background: #fff6f7; }
 </style>
 </head>
 <body>
@@ -630,15 +606,15 @@
           <path d="M7 12.5C7 12.5 1.5 9 1.5 5.5C1.5 3.567 3.067 2 5 2C5.997 2 6.895 2.43 7.524 3.115C7.524 3.115 7 4 7 5.5C7 4 6.476 3.115 6.476 3.115C7.105 2.43 8.003 2 9 2C10.933 2 12.5 3.567 12.5 5.5C12.5 9 7 12.5 7 12.5Z" fill="white" opacity="0.9"/>
         </svg>
       </div>
-      <span class="logo-text">Feelings Studio</span>
+      <span class="logo-text">Ask Softly</span>
     </div>
-    <h1>Say it<br><em>beautifully.</em></h1>
-    <p>Create a moment. Share a feeling. Let the answer find its own grace.</p>
+    <h1>Say what feels<br><em>hard to ask.</em></h1>
+    <p>Turn a difficult ask into a simple link with the right tone, the right words, and less pressure.</p>
   </div>
 
   <!-- TAB BAR -->
   <div class="tab-bar">
-    <button class="tab active" onclick="switchTab('sender', this)">Send a feeling</button>
+    <button class="tab active" onclick="switchTab('sender', this)">Create an ask</button>
     <button class="tab" onclick="switchTab('receiver', this)">I received a link</button>
   </div>
 
@@ -692,7 +668,7 @@
       </div>
       <div class="field">
         <label>For whom?</label>
-        <select id="target-style">
+        <select id="target-style" onchange="loadQuestions()">
           <option value="neutral" selected>Any / Neutral</option>
           <option value="her">For Her</option>
           <option value="him">For Him</option>
@@ -716,12 +692,13 @@
     <div id="step-2" class="card" style="display:none; animation: fadeUp 0.4s ease;">
       <div class="card-label">02 — Set the tone</div>
       <div class="tone-grid" id="tone-grid">
-        <div class="tone-pill" onclick="setTone(this, 'sweet')">Sweet</div>
-        <div class="tone-pill" onclick="setTone(this, 'playful')">Playful</div>
-        <div class="tone-pill" onclick="setTone(this, 'heartfelt')">Heartfelt</div>
-        <div class="tone-pill" onclick="setTone(this, 'gentle')">Gentle</div>
-        <div class="tone-pill" onclick="setTone(this, 'bold')">Bold</div>
-        <div class="tone-pill" onclick="setTone(this, 'nostalgic')">Nostalgic</div>
+        <div class="tone-pill" data-tone="sweet" onclick="setTone(this, 'sweet')">Sweet</div>
+        <div class="tone-pill" data-tone="playful" onclick="setTone(this, 'playful')">Playful</div>
+        <div class="tone-pill" data-tone="heartfelt" onclick="setTone(this, 'heartfelt')">Heartfelt</div>
+        <div class="tone-pill" data-tone="gentle" onclick="setTone(this, 'gentle')">Gentle</div>
+        <div class="tone-pill" data-tone="bold" onclick="setTone(this, 'bold')">Bold</div>
+        <div class="tone-pill" data-tone="nostalgic" onclick="setTone(this, 'nostalgic')">Nostalgic</div>
+        <div class="tone-pill" data-tone="romantic" onclick="setTone(this, 'romantic')">Romantic</div>
       </div>
 
       <div class="or-divider">pick a question</div>
@@ -819,7 +796,7 @@
       <div class="receiver-from">From <span id="r-sender-name">He/She</span></div>
       <div class="receiver-name" id="r-receiver-name"></div>
       <div class="receiver-avatar" id="receiver-avatar">🧑</div>
-      <div class="receiver-question" id="r-question">Loading your moment...</div>
+      <div class="receiver-question" id="r-question">Loading your ask...</div>
       <div class="question-react" id="question-react">
         <span class="react-emoji" id="react-emoji">💫</span>
         <span id="react-text">Dil se pucho, dil se jawab do.</span>
@@ -915,7 +892,7 @@
     <div id="outcome-later" class="outcome card" style="display:none;">
       <div class="outcome-icon outcome-icon-maybe" style="margin-bottom: 24px;">◌</div>
       <h2>Not <em style="color: var(--blush); font-style: italic;">right now</em></h2>
-      <p>The timing wasn't perfect. That's okay — feelings don't expire.</p>
+      <p>The timing wasn't perfect. That's okay - a thoughtful ask can wait for the right moment.</p>
       <div class="outcome-copy" id="outcome-later-copy"></div>
       <div class="direct-save-status" id="direct-save-status-later"></div>
       <button class="btn btn-primary" id="send-back-later" onclick="sendReplyBack('later')" style="display:none; margin-bottom: 14px;">Send answer back on WhatsApp</button>
@@ -950,7 +927,7 @@
   </div>
   <!-- END RECEIVER VIEW -->
 
-  <div class="footer">made with care · feelings studio · creator Arun Kumar · Full-Stack Mobile Engineer · 2x Anthropic Certified · Open to Remote</div>
+  <div class="footer">made with care · ask softly · creator Arun Kumar · Full-Stack Mobile Engineer · 2x Anthropic Certified · Open to Remote</div>
 </div>
 
 <script src="./questions.js"></script>
