@@ -1,6 +1,6 @@
-# Feelings Studio
+# Ask Softly
 
-Feelings Studio is a mobile-first emotional interaction app.
+Ask Softly is a mobile-first app for asking something you cannot say directly.
 
 The core idea is simple:
 
